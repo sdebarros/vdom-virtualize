@@ -27,16 +27,16 @@ var VNode = require("virtual-dom/vnode/vnode")
 
 module.exports = createVNode
 
-function createVNode(domNode, key) {
-  key = key || null // XXX: Leave out `key` for now... merely used for (re-)ordering
+function createVNode(domNode, opts) {
+  var addComments = !opts || !opts.ignoreComments;
 
-  if(domNode.nodeType == 1) return createFromElement(domNode, key)
-  if(domNode.nodeType == 3) return createFromTextNode(domNode, key)
-  if(domNode.nodeType == 8) return createFromCommentNode(domNode, key)
+  if(domNode.nodeType == 1) return createFromElement(domNode, opts)
+  if(domNode.nodeType == 3) return createFromTextNode(domNode)
+  if(domNode.nodeType == 8 && addComments) return createFromCommentNode(domNode)
   return
 }
 
-createVNode.fromHTML = function(html, key) {
+createVNode.fromHTML = function(html, opts) {
   var rootNode = null;
 
   try {
@@ -56,7 +56,7 @@ createVNode.fromHTML = function(html, key) {
     }, 0);
   }
 
-  return createVNode(rootNode, key);
+  return createVNode(rootNode, opts);
 };
 
 function createFromTextNode(tNode) {
@@ -69,7 +69,7 @@ function createFromCommentNode(cNode) {
 }
 
 
-function createFromElement(el) {
+function createFromElement(el, opts) {
   var tagName = el.tagName
   , namespace = el.namespaceURI == 'http://www.w3.org/1999/xhtml'? null : el.namespaceURI
   , properties = getElementProperties(el)
@@ -77,7 +77,7 @@ function createFromElement(el) {
   , vnode
 
   for (var i = 0; i < el.childNodes.length; i++) {
-    vnode = createVNode(el.childNodes[i])
+    vnode = createVNode(el.childNodes[i], opts)
 
     if (vnode) {
       children.push(vnode)
