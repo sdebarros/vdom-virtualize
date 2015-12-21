@@ -74,9 +74,14 @@ function createFromElement(el) {
   , namespace = el.namespaceURI == 'http://www.w3.org/1999/xhtml'? null : el.namespaceURI
   , properties = getElementProperties(el)
   , children = []
+  , vnode
 
   for (var i = 0; i < el.childNodes.length; i++) {
-    children.push(createVNode(el.childNodes[i]/*, i*/))
+    vnode = createVNode(el.childNodes[i])
+
+    if (vnode) {
+      children.push(vnode)
+    }
   }
 
   return new VNode(tagName, properties, children, null, namespace)
